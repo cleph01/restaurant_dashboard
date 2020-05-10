@@ -3,6 +3,7 @@ import Home from "./components/Home";
 import Chat from "./components/Chat";
 import Register from "./components/Register";
 import Login from "./components/Login";
+import AddMenuItem from "./components/AddMenuItem";
 
 import { Route } from "react-router-dom";
 
@@ -99,6 +100,7 @@ function App() {
                 <Route path="/chat" component={Chat} />
                 <Route path="/register" component={Register} />
                 <Route path="/login" component={Login} />
+                <Route path="/menu" component={AddMenuItem} />
 
                 {/*textModalVisible && (
                     <TextCustomerModal customerInfo={data.customerInfo} /> */}

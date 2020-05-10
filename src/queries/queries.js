@@ -36,6 +36,26 @@ const createUserMutation = gql`
     }
 `;
 
+const createItemMutation = gql`
+    mutation(
+        $businessId: ID!
+        $itemName: String!
+        $category: String!
+        $description: String!
+        $price: Float!
+        $imageURL: String!
+    ) {
+        createMenuItem(
+            businessId: $businessId
+            itemName: $itemName
+            category: $category
+            description: $description
+            price: $price
+            imageURL: $imageURL
+        )
+    }
+`;
+
 // Resume Queries
 
 // Resume Mutations
