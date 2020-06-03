@@ -8,6 +8,13 @@ import { FaPlus } from "react-icons/fa";
 
 import styled from "styled-components";
 
+
+import countOpenOrders from "../helper_functions/openOrdersFunction";
+
+import countKitchenOrders from "../helper_functions/inKitchenFunction";
+
+import countPickupOrders from "../helper_functions/pickupOrderFunction";
+
 const Container = styled.div`
     display: flex;
     justify-content: space-between;
@@ -65,15 +72,10 @@ const PickUp = styled.span`
     color: #fff;
 `;
 
-const Header = () => {
+const Header = (props) => {
     //destructuring data variables calling the useContext hook
     //and passing the context object
-    const {
-        data,
-        countOpenOrders,
-        countKitchenOrders,
-        countPickupOrders,
-    } = useContext(OrderContext);
+    const { orderStatusMap } = useContext(OrderContext);
 
     const history = useHistory();
 
@@ -81,16 +83,24 @@ const Header = () => {
         <>
             <Container>
                 <LeftHeader>
-                    <h3>Hi, {data.businessInfo.businessName} </h3>
+                    <h3>Hi, {props.businessName} </h3>
                     <h5>
-                        New Oders: <NewOrder>{countOpenOrders()}</NewOrder>
+                        New Oders:{" "}
+                        <NewOrder>
+                            {countOpenOrders(props.orders, orderStatusMap)}
+                        </NewOrder>
                     </h5>
                     <h5>
                         In Kitchen:{" "}
-                        <InKitchen>{countKitchenOrders()}</InKitchen>
+                        <InKitchen>
+                            {countKitchenOrders(props.orders, orderStatusMap)}
+                        </InKitchen>
                     </h5>
                     <h5>
-                        Ready: <PickUp>{countPickupOrders()}</PickUp>
+                        Ready:{" "}
+                        <PickUp>
+                            {countPickupOrders(props.orders, orderStatusMap)}
+                        </PickUp>
                     </h5>
                 </LeftHeader>
                 <RightHeader>

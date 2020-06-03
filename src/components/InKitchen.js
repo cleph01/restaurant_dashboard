@@ -8,6 +8,8 @@ import OrderWrapper from "./OrderWrapper";
 
 import { OrderContext } from "../contexts/OrderContext";
 
+import countKitchenOrders from "../helper_functions/inKitchenFunction";
+
 const Container = styled.div`
     margin: 20px 20px;
     padding: 20px;
@@ -22,18 +24,15 @@ const Header = styled.div`
 const InKitchen = (props) => {
     const [showKitchen, setShowKitchen] = useState(false);
 
-    //destructuring data variables calling the useContext hook
-    //and passing the context object
-    const { data, orderStatusMap, countKitchenOrders } = useContext(
-        OrderContext
-    );
+    //destructuring orderStatusMap variables calling the useContext hook
+    const { orderStatusMap } = useContext(OrderContext);
 
     //Return Kitchen Components if showKitchen is true
     function kitchenList() {
         if (showKitchen) {
             return (
                 <>
-                    {data.orderData.map((order) => {
+                    {props.orders.map((order) => {
                         if (orderStatusMap[order.orderId] === 1) {
                             return (
                                 <OrderWrapper
@@ -61,7 +60,7 @@ const InKitchen = (props) => {
         <Container>
             <Header onClick={handleShowKitchen}>
                 {showKitchen ? <FaAngleDown /> : <FaAngleRight />} In Kitchen (
-                {countKitchenOrders()})
+                {countKitchenOrders(props.orders, orderStatusMap)})
             </Header>
             {kitchenList()}
         </Container>

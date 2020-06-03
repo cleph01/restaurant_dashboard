@@ -1,4 +1,4 @@
-export const data = {
+export const testData = {
     customerInfo: {
         firstName: "Charlie",
         cellPhone: "9143125729",

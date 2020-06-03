@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -14,6 +14,9 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 
 import Logo from "../assets/logo/head.png";
+
+import { LoginUserMutation as LOGIN_USER_MUTATION } from "../graphql/queries/user";
+import { useMutation, useApolloClient } from "@apollo/react-hooks";
 
 function Copyright() {
     return (
@@ -62,8 +65,53 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const Login = () => {
+const LoginForm = (props) => {
+    //Holds Component State
+    const [userEntry, setUserEntry] = useState({});
+
+    const handleReturnUser = () => {
+        props.setReturningUser(false);
+    };
+
     const classes = useStyles();
+
+    //Handle onChange Event from Form Edit
+    const handleChange = (e) => {
+        setUserEntry({ ...userEntry, [e.target.name]: e.target.value });
+
+        console.log(userEntry, "User Entry - Register Page");
+    };
+
+    //Handles onSubmit Event
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        await loginUser({
+            variables: {
+                cellPhone: userEntry.cellPhone,
+                password: userEntry.password,
+            },
+        });
+    };
+
+    //Instantiate ApolloCache client object
+    const client = useApolloClient();
+
+    //Instantiating useMutation hook
+    const [loginUser, { loading, error }] = useMutation(LOGIN_USER_MUTATION, {
+        onCompleted({ loginUser }) {
+            localStorage.setItem("token", loginUser.token);
+            client.writeData({
+                data: { isLoggedIn: true, userName: loginUser.firstName },
+            });
+
+            console.log(props, "Login Props");
+        },
+    });
+
+    if (loading) return <div>Loading...</div>;
+
+    if (error) return <p>An error occurred</p>;
 
     return (
         <Grid container component="main" className={classes.root}>
@@ -84,6 +132,7 @@ const Login = () => {
                         <img
                             src={Logo}
                             style={{ width: "30px", height: "40px" }}
+                            alt="Socialiite Logo"
                         />
                     </Avatar>
                     <Typography component="h1" variant="h5">
@@ -91,6 +140,8 @@ const Login = () => {
                     </Typography>
                     <form className={classes.form} noValidate>
                         <TextField
+                            onChange={handleChange}
+                            error="true"
                             variant="outlined"
                             margin="normal"
                             required
@@ -102,6 +153,7 @@ const Login = () => {
                             autoFocus
                         />
                         <TextField
+                            onChange={handleChange}
                             variant="outlined"
                             margin="normal"
                             required
@@ -119,11 +171,12 @@ const Login = () => {
                             label="Remember me"
                         />
                         <Button
-                            type="submit"
+                            onClick={handleSubmit}
                             fullWidth
                             variant="contained"
                             color="primary"
                             className={classes.submit}
+                            disabled="true"
                         >
                             Sign In
                         </Button>
@@ -134,9 +187,12 @@ const Login = () => {
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="#" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
+                                <span
+                                    style={{ color: "#3f51b5" }}
+                                    onClick={handleReturnUser}
+                                >
+                                    Don't have an account? Sign Up
+                                </span>
                             </Grid>
                         </Grid>
                         <Box mt={5}>
@@ -149,4 +205,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default LoginForm;

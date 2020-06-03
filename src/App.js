@@ -1,19 +1,41 @@
 import React, { useState } from "react";
-import Home from "./components/Home";
+
+import { Redirect } from "react-router";
+
+import Home from "./components/Dashboard";
 import Chat from "./components/Chat";
-import Register from "./components/Register";
-import Login from "./components/Login";
+
 import AddMenuItem from "./components/AddMenuItem";
+import AuthPage from "./components/AuthPage";
 
 import { Route } from "react-router-dom";
 
 import { OrderContext } from "./contexts/OrderContext";
 
-import { data } from "./data/testData";
+import { testData } from "./data/testData";
 
 import TextCustomerModal from "./components/modals/TextCustomerModal";
 
+import { useMutation } from "@apollo/react-hooks";
+//Importing GraphQL Query for useMutation API call
+import { updateOrderStatusMutation as UPDATE_ORDER_STATUS_MUTATION } from "./graphql/mutations/orders";
+
+import { getBusinessInfoQuery } from "./graphql/queries/business";
+
 function App() {
+    //Instantiate useMutation Hook
+    const [updateStatus, { loading, error }] = useMutation(
+        UPDATE_ORDER_STATUS_MUTATION,
+        {
+            refetchQueries: [
+                { query: getBusinessInfoQuery, variables: { businessId: 1 } },
+            ],
+            onCompleted(data) {
+                console.log(data, "\n Rannnnnnnn update Status");
+            },
+        }
+    );
+
     //Holds Order Status as orderId:id for moveStatusForward function
     const [orderStatusMap, setOrderStatusMap] = useState({});
 
@@ -23,6 +45,10 @@ function App() {
     //Function passed through context to Move Order
     //Kitchen, Pickup, or Complete
     const moveStatusForward = (orderId, status) => {
+        updateStatus({
+            variables: { orderId: orderId, status: status },
+        });
+
         setOrderStatusMap({
             ...orderStatusMap,
             [orderId]: status,
@@ -39,68 +65,72 @@ function App() {
         });
     };
 
-    //Disply InKitchen Count in OpenOrders Component
-    const countOpenOrders = () => {
-        let count = data.orderData.length;
 
-        for (let i = 0; i < data.orderData.length; i++) {
-            const orderId = data.orderData[i].orderId;
-
-            if (orderStatusMap[orderId]) {
-                --count;
+    
+    //Protect Dashboard Route
+    const ProtectedDashboardRoute = ({ component: Component, ...rest }) => (
+        <Route
+            {...rest}
+            render={(props) =>
+                localStorage.getItem("token") ? (
+                    <Home {...props} />
+                ) : (
+                    <Redirect to="/" />
+                )
             }
-        }
-        return count;
-    };
+        />
+    );
 
-    //Disply InKitchen Count in InKitchen Component
-    const countKitchenOrders = () => {
-        let count = 0;
-
-        for (let i = 0; i < data.orderData.length; i++) {
-            const orderId = data.orderData[i].orderId;
-
-            if (orderStatusMap[orderId] == 1) {
-                ++count;
+    //Protect Chat Route
+    const ProtectedChatRoute = ({ component: Component, ...rest }) => (
+        <Route
+            {...rest}
+            render={(props) =>
+                localStorage.getItem("token") ? (
+                    <Chat {...props} />
+                ) : (
+                    <Redirect to="/" />
+                )
             }
-        }
-        return count;
-    };
+        />
+    );
 
-    //Disply Ready for Pickup Count in Header
-    const countPickupOrders = () => {
-        let count = 0;
-
-        for (let i = 0; i < data.orderData.length; i++) {
-            const orderId = data.orderData[i].orderId;
-
-            if (orderStatusMap[orderId] === 2) {
-                ++count;
+    //Protect AddMenuItem Route
+    const ProtectedMenuRoute = ({ component: Component, ...rest }) => (
+        <Route
+            {...rest}
+            render={(props) =>
+                localStorage.getItem("token") ? (
+                    <AddMenuItem {...props} />
+                ) : (
+                    <Redirect to="/" />
+                )
             }
-        }
-        return count;
-    };
+        />
+    );
 
     return (
         <>
             <OrderContext.Provider
                 value={{
-                    data,
+                    testData,
                     orderStatusMap,
                     textModalVisible,
                     moveStatusForward,
                     moveStatusBack,
-                    countOpenOrders,
-                    countKitchenOrders,
-                    countPickupOrders,
                     setTextModalVisible,
                 }}
             >
-                <Route exact path="/" component={Home} />
-                <Route path="/chat" component={Chat} />
-                <Route path="/register" component={Register} />
-                <Route path="/login" component={Login} />
-                <Route path="/menu" component={AddMenuItem} />
+                <Route exact path="/" component={AuthPage} />
+
+                <ProtectedDashboardRoute path="/dashboard" component={Home} />
+
+                <ProtectedMenuRoute path="/menu" component={AddMenuItem} />
+
+                <ProtectedMenuRoute path="/chat" component={Chat} />
+
+                {/* <Route path="/chat" component={Chat} />
+                <Route path="/menu" component={AddMenuItem} /> */}
 
                 {/*textModalVisible && (
                     <TextCustomerModal customerInfo={data.customerInfo} /> */}

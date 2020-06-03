@@ -6,7 +6,7 @@ import styled from "styled-components";
 
 import { data as chatData } from "../data/testChat";
 
-import { data as orderData } from "../data/testData";
+import { testData as orderData } from "../data/testData";
 
 import { twilio } from "../twilio/twilio";
 

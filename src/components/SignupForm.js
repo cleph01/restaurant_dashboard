@@ -16,7 +16,7 @@ import Container from "@material-ui/core/Container";
 
 import Logo from "../assets/logo/head.png";
 
-import { createUserMutation as CREATE_USER_MUTATION } from "../queries/queries";
+import { createUserMutation as CREATE_USER_MUTATION } from "../graphql/queries/user";
 import { useMutation } from "@apollo/react-hooks";
 
 function Copyright() {
@@ -97,13 +97,21 @@ const Register = (props) => {
         console.log(props, "\n Mutation Response - Register Component");
     };
 
+    const handleReturnUser = () => {
+        props.setReturningUser(true);
+    };
+
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     {/* <LockOutlinedIcon /> */}
-                    <img src={Logo} style={{ width: "30px", height: "40px" }} />
+                    <img
+                        src={Logo}
+                        style={{ width: "30px", height: "40px" }}
+                        alt="socialiite logo"
+                    />
                 </Avatar>
                 <Typography component="h1" variant="h5">
                     Sign up
@@ -114,6 +122,7 @@ const Register = (props) => {
                             <TextField
                                 autoComplete="fname"
                                 name="firstName"
+                                error="true"
                                 variant="outlined"
                                 required
                                 fullWidth
@@ -162,9 +171,12 @@ const Register = (props) => {
                     </Button>
                     <Grid container justify="flex-end">
                         <Grid item>
-                            <Link href="#" variant="body2">
+                            <span
+                                style={{ color: "#3f51b5" }}
+                                onClick={handleReturnUser}
+                            >
                                 Already have an account? Sign in
-                            </Link>
+                            </span>
                         </Grid>
                     </Grid>
                 </form>

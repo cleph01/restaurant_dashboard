@@ -7,6 +7,8 @@ import OrderWrapper from "./OrderWrapper";
 
 import { OrderContext } from "../contexts/OrderContext";
 
+import countPickupOrders from "../helper_functions/pickupOrderFunction";
+
 const Container = styled.div`
     margin: 20px 20px;
     padding: 20px;
@@ -24,9 +26,7 @@ const PickUp = (props) => {
 
     //destructuring data variables calling the useContext hook
     //and passing the context object
-    const { data, orderStatusMap, countPickupOrders } = useContext(
-        OrderContext
-    );
+    const { orderStatusMap } = useContext(OrderContext);
 
     //Return Kitchen Components if showKitchen is true
     function readyList() {
@@ -34,7 +34,7 @@ const PickUp = (props) => {
             return (
                 <>
                     <>
-                        {data.orderData.map((order) => {
+                        {props.orders.map((order) => {
                             if (orderStatusMap[order.orderId] === 2) {
                                 return (
                                     <OrderWrapper
@@ -64,7 +64,7 @@ const PickUp = (props) => {
             <Container>
                 <Header onClick={handleShowPickup}>
                     {showPickup ? <FaAngleDown /> : <FaAngleRight />} Ready For
-                    Pickup ({countPickupOrders()})
+                    Pickup ({countPickupOrders(props.orders, orderStatusMap)})
                 </Header>
                 {readyList()}
             </Container>

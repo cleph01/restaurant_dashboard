@@ -5,6 +5,8 @@ import { OrderContext } from "../contexts/OrderContext";
 
 import OrderWrapper from "./OrderWrapper";
 
+import countOpenOrders from "../helper_functions/openOrdersFunction";
+
 const Container = styled.div`
     margin: 20px 20px;
     padding: 20px;
@@ -16,16 +18,17 @@ const Header = styled.div`
     border-bottom: 1px solid #000;
 `;
 
-const OpenOrders = () => {
-    //destructuring data variables calling the useContext hook
-    //and passing the context object
-    const { data, orderStatusMap, countOpenOrders } = useContext(OrderContext);
+const OpenOrders = (props) => {
+    //destructuring orderStatusMap variables calling the useContext hook
+    const { orderStatusMap } = useContext(OrderContext);
 
-    console.log(orderStatusMap, "Order Status Map");
+    
     return (
         <Container>
-            <Header>New Orders ({countOpenOrders()})</Header>
-            {data.orderData.map((order) => {
+            <Header>
+                New Orders ({countOpenOrders(props.orders, orderStatusMap)})
+            </Header>
+            {props.orders.map((order) => {
                 if (!orderStatusMap[order.orderId]) {
                     return (
                         <OrderWrapper
@@ -34,7 +37,6 @@ const OpenOrders = () => {
                             order={order}
                             nextStatus={1}
                         />
-                        
                     );
                 }
             })}
